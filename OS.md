@@ -282,4 +282,465 @@ CPU에서는 정상적으로 수행할 수 없는 명령어가 입력되면 인�
         time.sleep(5)
     ```
     </details>
+<br>
+<br>
 
+# 프로세스란?
+
+실행중인 프로그램을 뜻한다. 프로그램을 실행하기 위해서 운영체제는 필요한 자원을 할당하고 관리하기 시작한다.
+
+하나의 프로세스는 실행 중인 프로그램의 인스턴스로, 메모리에 할당된 리소스와 실행 상태를 가지고 있다.
+
+각각의 프로세스는 독립적으로 실행되며, 다른 프로세스와는 독립된 메모리 공간을 가진다.
+
+프로세스는 컴퓨터 시스템에서 중요한 개념으로, 다양한 응용 프로그램이 동시에 실행되고 관리될 수 있도록 한다. 
+
+각 프로세스는 실행 중인 프로그램의 상태를 나타내며, 운영 체제에 의해 관리되어 효율적으로 리소스를 사용하고 실행된다.
+<br>
+<br>
+## 프로세스의 구조
+![프로세스 구조](/이미지/스크린샷%202024-03-15%20오전%2010.07.31.png)
+
+- 코드영역 : 프로세스가 실행할 명령어들의 집합. 코드 세그먼트에는 프로그램의 명령어들이 메모리에 저장되어 있으며, CPU가 이를 실행한다.
+
+- 데이터 영역 :  프로세스가 사용하는 전역 변수, 정적 변수, 상수 등이 저장된다. 이 세그먼트는 초기화된 데이터와 초기화되지 않은 데이터(BSS 세그먼트)로 나뉜다.
+
+- 스택 영역 : 프로세스의 함수 호출 및 지역 변수를 저장하는 데 사용된다. 함수가 호출될 때마다 스택에 새로운 프레임이 생성되며, 함수가 반환될 때 이전 프레임이 제거된다. -> 휘발성 데이터
+
+- 힙 영역 : 동적으로 할당된 메모리를 저장하는 데 사용된다. 힙은 프로세스의 실행 중에 동적으로 메모리를 할당하고 해제할 수 있으며, 주로 동적으로 생성된 객체나 데이터 구조를 저장한다.
+
+- 레지스터 영역 : CPU 내부에 있는 작은 메모리 공간으로, 프로세스의 실행 중에 현재 실행 중인 명령어나 데이터를 일시적으로 저장하는 데 사용된다. 레지스터에는 프로그램 카운터(PC), 스택 포인터(SP), 베이스 레지스터(BP) 등이 포함된다.
+<br>
+<br>
+
+### 프로세스 존재 확인 실습 코드
+
+<details>
+<summary>2. process.py - 파이썬 프로세스 할당 코드 펼쳐보기</summary>
+
+```python
+# 파이썬 프로그램도 프로세스가 될 수 있다.
+# 파이썬 코드 동작시 할당되는 프로세스의 아이디를 확인하는 코드
+import os
+
+# os.getpid() -> 프로세스 아이디를 가져옴
+print('파이썬 코드 실행중.. 실행중인 프로세스 아이디는 : ', os.getpid())
+```
+</details>
+
+<details>
+<summary>2. process.py - 크롬 프로세스 확인 펼쳐보기</summary>
+
+```python
+
+# 내 컴퓨터에서 돌아가는 크롬에 해당하는 프로세스 조회하기
+# pip install psutil
+import psutil
+
+# 프로세스들에 반복적으로 접근하여 개별 프로세스의 이름을 가져옴
+for proc in psutil.process_iter():
+    process_name = proc.name()
+    # 프로세스의 이름에 크롬이 포함되어있으면 프린트.
+    if "chrome" in process_name:
+        print(process_name, proc.pid)
+```
+
+</details>
+<br>
+<br>
+
+## 프로세스 상태
+![프로세스 상태 변화](/이미지/스크린샷%202024-03-15%20오전%2010.34.20.png)
+```
+- 생성(Created): 프로세스가 생성되었지만 아직 실행되지 않은 상태. 이 상태에서는 운영체제가 프로세스를 초기화하고 필요한 자원을 할당한다.
+
+- 준비(Ready): 프로세스가 실행을 기다리는 상태. 준비 상태에 있는 프로세스는 CPU를 사용할 준비가 되어 있지만, 아직 CPU를 할당받지 못한 상태이다.
+
+- 실행(Running): CPU를 사용하여 명령어를 실행하는 상태. 실행 상태에 있는 프로세스는 현재 CPU를 사용하고 있다.
+
+- 대기(Waiting 또는 Blocked): 프로세스가 어떤 이벤트를 기다리는 상태. 예를 들어, 입출력 완료를 기다리거나, 특정 자원의 사용 허가를 기다리는 경우가 있을 수 있다.
+
+- 종료(Terminated 또는 Exit): 프로세스가 실행을 완료하고 종료된 상태. 종료된 프로세스는 운영체제에 의해 메모리에서 해제되고 관련된 자원이 반환된다.
+```
+
+프로세스는 이러한 상태를 변경하면서 실행된다. 보통은 cpu는 하나의 프로세스만 실행가능 하기 때문에 생성 → 준비 → 실행 → 대기 → 실행 → 대기 → ... → 종료 의 순서로 상태가 변경된다.
+
+준비 상태에서 실행 상태로 전환하기 위해서는 CPU 스케줄러에 의해 선택되어 CPU를 할당받아야 한다. 
+
+대기 상태에서 실행 상태로 전환하기 위해서는 해당 이벤트가 발생하여 대기 상태를 벗어나야 한다.
+<br>
+<br>
+### 프로세스 제어 블록(Process Control Block, PCB)
+
+CPU는 한 번에 하나의 연산을 수행할 수 있기 때문에 여러 개의 프로세스를 동시에 실행하지 않고 빠르게 번갈아가면서 실행하게 된다.
+
+이를 위해 운용체제는 PCB를 만들어서 관리하는데, 여기에는 프로세스를 식별하기 위해서 필요한 정보들이 저장된다.
+ex. process ID, register data, scheduling config, status ...
+
+PCB는 각 프로세스에 대해 운영체제가 유지하는 정보이므로, 프로세스가 생성되고 종료될 때마다 PCB가 생성되거나 삭제됩니다. PCB는 프로세스의 상태 변화에 따라 업데이트되며, 운영체제가 프로세스를 스케줄링하고 제어하는 데 필요한 핵심 데이터를 제공한다.
+
+- PCB에 포함되는 정보
+    1. `프로세스 상태(Process State)` : 프로세스의 현재 상태. 예를 들어, 실행 중인지 대기 중인지, 중단되었는지 등을 나타낸다.
+
+    2. `프로그램 카운터(Program Counter, PC)` : 다음에 실행할 명령어의 주소를 가리키는 레지스터 값.
+
+    3. `레지스터 상태(Register State)` : CPU 레지스터의 내용을 저장한다. 이는 프로세스가 중단되었을 때 해당 레지스터 값을 저장하고, 다시 실행될 때 해당 레지스터 값을 복원하는 데 사용된다.
+
+    4. `스케줄링 정보(Scheduling Information)` : 프로세스가 CPU를 사용할 수 있는 우선순위, 스케줄링 알고리즘에 필요한 정보 등을 포함한다.
+
+    5. `메모리 관리 정보(Memory Management Information)` : 프로세스가 사용하는 메모리 영역의 크기와 위치를 포함한다. 이 정보는 가상 메모리 시스템에서 중요한 역할을 한다.
+
+    6. `입출력 상태(Input/Output State)` : 프로세스가 대기 중인 입출력 작업과 관련된 정보를 포함한다. 이 정보는 입출력 작업이 완료되면 프로세스를 깨워 다시 실행되도록 하는 데 사용된다.
+
+
+### 프로세스 계층
+![계층](/이미지/스크린샷%202024-03-15%20오전%2010.44.37.png)
+
+프로세스 계층(Process Hierarchy)은 운영체제에서 프로세스 간의 부모-자식 관계를 의미한다. 
+
+일반적으로는 부모 프로세스가 자식 프로세스를 생성하는 방식으로 계층 구조가 형성된다. 
+
+부모-자식간의 프로세스는 각각 독립적인 영역을 가진다.
+
+이러한 계층 구조는 다양한 운영체제에서 프로세스의 관리와 제어를 용이하게 한다.
+
+### 프로세스 실습 코드
+
+<details>
+<summary>3. process_detail.py 코드 열어보기</summary>
+
+```python
+import psutil
+
+for proc in psutil.process_iter() :
+    process_name = proc.name()
+    if "chrome" in process_name:
+        # 해당 프로세스의 자식을 가져옴
+        child = proc.children()
+        # 프로세스이름, 상태, 부모 프로세스 모두 프린트
+        print(process_name, proc.status(), proc.parent())
+
+        # 자식프로세스가 존재하면 프린트.
+        if child :
+            print(f'{process_name}의 자식 프로세스 : ', child)
+```
+
+</details>
+
+### 멀티 프로세스 운영체제
+
+동시에 여러 개의 프로세스를 실행할 수 있는 운영체제를 의미한다. 
+
+이러한 운영체제는 여러 개의 프로세스가 동시에 실행되고 서로 독립적으로 실행될 수 있도록 지원한다. 
+
+각 프로세스는 각각의 메모리 공간을 할당받고, 독립적으로 실행되며, 서로 영향을 주지 않는다.
+
+### 컨텍스트 스위칭 
+![컨텍스트 스위칭](/이미지/스크린샷%202024-03-15%20오전%2011.01.47.png)
+
+CPU가 한 프로세스에서 다른 프로세스로 전환하는 과정을 의미한다.
+
+- 발생 시기
+    1. 프로세스 스케줄링: CPU 스케줄러가 다음에 실행할 프로세스를 선택하여 CPU를 할당할 때.
+
+    2. 인터럽트 처리: 입출력 완료, 타이머 만료 등의 이벤트가 발생하여 현재 실행 중인 프로세스를 중단하고 인터럽트 서비스 루틴이 실행될 때.
+
+- 단계
+    1. 현재 프로세스의 상태 저장: 현재 실행 중인 프로세스의 상태(레지스터 값, 프로세스 상태 등)를 해당 프로세스의 PCB에 저장한다.
+
+    2. 다음 프로세스의 상태 로드: 다음에 실행될 프로세스의 PCB에서 상태를 읽어와 CPU 레지스터에 로드한다.
+
+    3. 프로세스 실행: 새로운 프로세스가 실행되며, 현재 프로세스의 실행이 중단된다.
+<br>
+<br>
+
+## 프로세스 생성
+![프로세스 생성](/이미지/스크린샷%202024-03-15%20오전%2011.31.25.png)
+
+프로그램 실행시, 운영체제는 코드 영역과 데이터 영역을 메인 메모리에 올리고 빈 스택과 빈 힙을 만들어 공간을 확보한다. 이는 시스템에게는 상당한 부담을 주는 일이다.
+
+운영체제 부팅시 프로세스는 딱 한번 생성되는데 그것이 최초의 프로세스가 된다.
+
+이후에 새로운 프로세스를 생성하는 것보다, 기존 프로세스를 복사하는 것이 더 빠르다. 따라서 모든 프로세스는 최초의 프로세스로 부터 복사된다.
+
+이때 부모 프로세스를 복사하는 함수를 fork() 함수라고 한다.
+
+이후에 메모리영역에 코드영역과 데이터 영역을 덮어쓰는 함수는 exec() 함수이다.
+
+=> fork함수와 exec 함수의 반복으로 새로운 프로세스가 생성되는 것이다.
+
+### 멀티 프로세싱 실습 코드
+
+<details>
+<summary>4. multi_processing.py - 멀티 프로세스(단일 하위 프로세스) 코드 열어보기</summary>
+
+```python
+# 같은 작업을 하는 하나의 하위 프로세스 생성
+from multiprocessing import Process
+import os
+
+def func():
+    print('실험용으로 만들어 본 함수')
+    print('나의 프로세스 아이디: ', os.getpid())
+    print('나의 부모 프로세스 아이디: ', os.getppid()) # ppid는 부모 프로세스의 아이디
+
+if __name__ == '__main__':
+    print('4.multi_processing.py 프로세스 아이디: ', os.getpid())
+    child = Process(target=func).start() # target을 하위 프로세스로 만듦
+```
+
+</details>
+
+<details>
+<summary>5. multi_processing2.py - 멀티 프로세스(같은 여러개의 하위 프로세스) 코드 열어보기</summary>
+
+```python
+# 같은 작업을 하는 여러 개의 하위 프로세스 생성
+from multiprocessing import Process
+import os
+
+def func():
+    print('실험용으로 만들어 본 함수')
+    print('나의 프로세스 아이디: ', os.getpid())
+    print('나의 부모 프로세스 아이디: ', os.getppid()) # ppid는 부모 프로세스의 아이디
+
+if __name__ == '__main__':
+    print('5.multi_processing2.py 프로세스 아이디: ', os.getpid())
+    # 하위 프로세스를 여러개 만들 수도 있다.(트리 구조)
+    child1 = Process(target=func).start() # target을 하위 프로세스로 만듦
+    child2 = Process(target=func).start() # target을 하위 프로세스로 만듦
+    child3 = Process(target=func).start() # target을 하위 프로세스로 만듦
+```
+
+</details>
+
+<details>
+<summary>6. multi_processing3.py - 멀티 프로세스(다른 여러개의 하위 프로세스) 코드 열어보기</summary>
+
+```python
+# 다른 작업을 하는 여러 개의 하위 프로세스 생성
+from multiprocessing import Process
+import os
+import time
+
+def func1():
+    print("func1 프로세스 아이디: ", os.getpid())
+    print("부모 프로세스 아이디: ", os.getppid())
+
+def func2():
+    print("func2 프로세스 아이디: ", os.getpid())
+    print("부모 프로세스 아이디: ", os.getppid())
+
+def func3():
+    print("func3 프로세스 아이디: ", os.getpid())
+    print("부모 프로세스 아이디: ", os.getppid())
+
+if __name__ == '__main__':
+    print('6.multi_processing3.py 프로세스 아이디: ', os.getpid())
+    # 각각 다른 함수를 하위 프로세스로 만든다.
+    child1 = Process(target=func1).start() # func1을 하위 프로세스로 만듦
+    child2 = Process(target=func2).start() # func2을 하위 프로세스로 만듦
+    child3 = Process(target=func3).start() # func3을 하위 프로세스로 만듦
+```
+
+</details>
+
+<details>
+<summary>7. process_homework.py - 과제 코드 열어보기</summary>
+
+```python
+# 내 파이썬 프로그램의 이름 알아보기
+# psutil을 사용해서 사용중인 프로세스 중에 
+# 7. process_homework.py에 해당하는 프로세스를 찾을 경우 프린트로 출력
+import os
+import psutil
+
+current_pid = os.getpid()
+
+for proc in psutil.process_iter():
+    process_id = proc.pid
+    if process_id == current_pid:
+        print('과제의 프로세스 이름: ', proc.name())
+        print('과제의 프로세스 아이디: ', proc.pid)
+        print('부모 프로세스 아이디: ', proc.ppid())
+        print('부모 프로세스 이름: ', psutil.Process(proc.ppid()).name())
+```
+
+</details>
+<br>
+<br>
+
+## 쓰레드(Thread)의 이해
+![thread-structure](/이미지/thread_structure.png)
+
+![프로세스-Thread](/이미지/스크린샷%202024-03-15%20오후%201.35.19.png)
+
+쓰레드(Thread)는 프로세스 내에서 실행되는 각각의 실행 흐름을 나타낸다. 
+
+각각의 쓰레드는 독립적으로 실행되며, 프로세스의 자원을 공유한다. 
+
+쓰레드는 쓰레드가 하나 생성될 때마다 쓰레드를 위한 스택 영역이 추가로 생성되며, 그 이외의 코드, 데이터, 힙 영역은 공유한다.
+
+하나의 프로세스는 여러 개의 쓰레드를 가질 수 있으며, 이러한 쓰레드들은 서로 다른 작업을 동시에 처리할 수 있다.
+
+- 특징
+    1. `경량화(Lightweight)`: 쓰레드는 프로세스 내에서 실행되기 때문에 쓰레드 간의 전환(Context Switching)이 프로세스 간의 전환보다 더 빠르다. 이는 쓰레드가 프로세스의 자원을 공유하기 때문에 프로세스 간의 문맥 교환보다 더 효율적으로 수행다.
+
+    2. `동시성(Concurrency)`: 하나의 프로세스 내에서 여러 개의 쓰레드가 동시에 실행될 수 있다. 이는 각 쓰레드가 독립적으로 실행되기 때문에 여러 작업을 동시에 처리할 수 있다.
+
+    3. `자원 공유(Resource Sharing)`: 쓰레드는 같은 프로세스 내에서 실행되기 때문에 프로세스의 자원(메모리, 파일 등)을 공유할 수 있다. 이를 통해 쓰레드 간에 데이터를 공유하고 통신할 수 있다.
+
+    4. `효율성(Efficiency)`: 쓰레드를 사용하면 여러 작업을 동시에 처리할 수 있으므로 시스템 자원을 효율적으로 활용할 수 있다. 또한 쓰레드 간의 통신은 프로세스 간의 통신보다 오버헤드가 적다.
+
+### 쓰레드 실습 코드
+
+<details>
+<summary>8.thread.py 의 실습 코드 펼쳐보기</summary>
+
+```python
+import threading
+import os
+
+def func():
+    print('실험용으로 만들어 본 함수')
+    print('나의 프로세스 아이디: ', os.getpid())
+    print('쓰레드 아이디 : ', threading.get_native_id())
+
+if __name__ == '__main__':
+    print('기존 프로세스 아이디 : ', os.getpid())
+    thread1 = threading.Thread(target=func) # target에 대한 쓰레드를 생성
+    thread1.start()
+```
+
+</details>
+
+<details>
+<summary>9.thread2.py 의 실습 코드 펼쳐보기</summary>
+
+```python
+import threading
+import os
+import time
+
+# 문자열 데이터를 받아 무한히 출력하는 함수
+# 3초마다 문자열을 출력
+def something(word):
+    while True:
+        print(word)
+        time.sleep(3)
+
+'''
+
+파이썬을 실행하면 기본적으로 메인 쓰레드가 하나 생기는데, 하위 쓰레드를 만들어 별도의 쓰레드에서 something이라는 함수를 실행시킨다.
+
+하나의 프로세스 안에서 두개의 쓰레드 (메인, 하위(데몬))을 실행시키는 구조이다.
+
+파이썬 파일을 실행해보면 메인쓰레드의 프린터문은 1초간격으로 실행되고, 별도의 쓰레드에서 3초간격으로 다른 프린터문이 실행되는 모습을 확인할 수 있다.
+
+'''
+if __name__ == "__main__":
+    print('something의 프로세스 아이디: ', os.getpid())
+    thread1 = threading.Thread(target=something, args=("hello",))
+    thread1.daemon = True # 데몬 쓰레드 : 메인 쓰레드가 종료되면 같이 종료되는 쓰레드 -> 활성화
+    thread1.start()
+    print('메인 쓰레드에서 반복문을 시작')
+    while True:
+        try:
+            print('main thread....')
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print('메인 쓰레드 종료')
+            break
+```
+
+</details>
+<br>
+<br>
+
+## CPU Scheduling 의 이해
+
+CPU 스케줄링은 여러 개의 프로세스가 CPU를 사용하기 위해 경쟁할 때, 어떤 프로세스에게 CPU를 할당할지 결정하는 작업이다.
+
+CPU 스케줄러는 운영체제의 일부로, 효율적인 자원 관리를 위해 필요하다.
+
+- CPU 스케줄링의 목표
+    1. `공정성(Fairness)` : 모든 프로세스가 CPU 시간을 공평하게 나눠 받아야 한다. 어떤 프로세스도 오랫동안 CPU를 독점해서는 안된다.
+
+    2. `효율성(Efficiency)` : CPU 사용률을 최대화하여 CPU를 최대한 활용해야 한다. 대기 중인 프로세스가 없는 경우 CPU가 놀지 않고 계속해서 작업을 수행해야 한다.
+
+    3. `응답 시간(Response Time)` : 사용자의 입력에 빠르게 응답해야 한다. 응답 시간을 최소화하여 사용자 경험을 향상시켜야 한다.
+
+    4. `턴어라운드 시간(Turnaround Time)` : 프로세스가 시스템에 도착한 시점부터 완료될 때까지 걸리는 시간을 최소화 해야 한다. 프로세스가 빠르게 완료되어야 다음 프로세스가 빠르게 실행될 수 있다.
+
+
+운영체제는 프로세스의 우선순위를 고려해서 CPU 스케줄링을 하게되는데, 이를 위한 여러가지 알고리즘이 존재한다.
+
+- 대표적인 CPU 스케줄링 알고리즘
+    1. `FCFS(First-Come, First-Served)` : 먼저 도착한 프로세스가 먼저 CPU를 할당받는 방식이다. 간단하지만 응답 시간이 길어지는 문제가 있다.
+
+    2. `SJF(Shortest Job First)` : 실행 시간이 가장 짧은 프로세스에게 CPU를 할당하는 방식이다. 응답 시간이 짧고 효율적이다.
+
+    3. `Round Robin` : 공정성을 유지하면서 시분할 시스템을 구현하는 방식이다. 각 프로세스는 일정 시간 동안 CPU를 할당받고, 그 시간이 지나면 다음 프로세스에게 CPU를 넘긴다.
+
+    4. `Priority Scheduling` : 각 프로세스에 우선순위를 할당하고, 우선순위가 높은 프로세스에게 CPU를 할당하는 방식이다.
+
+    5. `Multilevel Queue` : 여러 개의 큐를 사용하여 다양한 우선순위의 프로세스를 구분하고, 각 큐에 다른 스케줄링 알고리즘을 적용하는 방식이다.
+
+### CPU 스케줄링 실습 코드 ###
+<details>
+<summary>10. cpu_scheduling.py 실습코드 펼쳐보기</summary>
+
+```python
+
+'''
+실행전 터미널에서 ps -el | grep python 명령어를 통해 python이라는 이름을 포함한 동작중인 프로세스의 상세내역을 출력해본다.
+
+이후에 파이썬 파일을 실행하고 다시 명령어를 실행해보면 여러개의 프로세스가 추가되어있는 모습을 확인가능하다.
+
+multiprocessing.spwan => 멀티 프로세스에 의해서 돌아가고있음.
+multiprocessing-fork => 프로세스 복사시에 fork함수가 사용되었다.
+
+6번째 숫자는 프로세스의 우선순위를 나타내는데 이를 통해 프로세스들의 우선순위가 모두 같은 것을 확인가능하다.
+
+우선순위가 같은 프로세스들을 처리하기 위한 CPU 스케줄링 알고리즘이 존재한다.
+
+'''
+from multiprocessing import Process
+import os
+
+def func1():
+    while True:
+        try:
+            print("func1 프로세스 아이디: ", os.getpid())
+            print("부모 프로세스 아이디: ", os.getppid())
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt")
+            break
+
+def func2():
+    while True:
+        try:
+            print("func2 프로세스 아이디: ", os.getpid())
+            print("부모 프로세스 아이디: ", os.getppid())
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt")
+            break
+
+def func3():
+    while True:
+        try:
+            print("func3 프로세스 아이디: ", os.getpid())
+            print("부모 프로세스 아이디: ", os.getppid())
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt")
+            break
+
+if __name__ == '__main__':
+    print('6.multi_processing3.py 프로세스 아이디: ', os.getpid())
+    # 각각 다른 함수를 하위 프로세스로 만든다.
+    child1 = Process(target=func1).start() # func1을 하위 프로세스로 만듦
+    child2 = Process(target=func2).start() # func2을 하위 프로세스로 만듦
+    child3 = Process(target=func3).start() # func3을 하위 프로세스로 만듦
+```
+
+</details>
