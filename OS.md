@@ -1477,3 +1477,541 @@ for i in range(1,6):
 ```
 
 </details>
+<br>
+<br>
+
+## 파일 시스템
+파일이란 의미있는 정보들을 한 덩어리로 모아 둔 논리적 단위로써, 보조기억장치에 저장된다. 실행 시에는 메인메모리를 사용한다.
+
+- 파일의 구성 요소
+    1. 파일 이름
+
+    2. 파일 실행에 필요한 정보
+
+    3. 메타데이터 : 파일에 대한 정보를 설명하는 데이터이다. 이 정보는 파일의 내용과는 별도로 파일의 속성, 구조, 권한, 생성 시간 등을 포함한다. 메타데이터는 파일 시스템에서 파일을 관리하고 사용자와 시스템 간의 상호작용을 지원하는 데 중요한 역할을 한다.
+
+        - 메타데이터의 구성
+            1. 파일 이름(File Name):
+                파일의 식별을 위한 이름이다. 파일 시스템에서 파일을 찾거나 접근할 때 사용된다.
+            
+            2. 파일 경로(File Path):
+                파일이 저장된 위치를 나타내는 경로이다. 파일의 위치를 정확히 지정하고 식별하는 데 사용된다.
+                
+            3. 파일 크기(File Size):
+                파일이 차지하는 바이트 수를 나타낸다. 파일 크기는 파일의 내용을 이해하고 저장하는 데 도움이 된다.
+            
+            4. 생성 시간(Creation Time):
+                파일이 생성된 시간을 나타낸다. 파일의 생성일을 추적하여 파일의 생성 이력을 관리한다.
+            
+            5. 수정 시간(Modification Time):
+                파일이 마지막으로 수정된 시간을 나타낸다. 파일의 내용이 변경된 시간을 추적하여 파일의 최신 상태를 파악한다.
+            
+            6. 액세스 시간(Access Time):
+                파일이 마지막으로 접근된 시간을 나타낸다. 파일이 읽거나 쓰여진 시간을 추적하여 파일의 사용 이력을 파악한다.
+                
+            7. 파일 종류(확장자)(File Type):
+                파일의 종류를 나타낸다. 예를 들어, 텍스트 파일, 이미지 파일, 실행 파일 등 여러 종류의 파일이 있다.
+                
+            8. 파일 소유자(File Owner):
+                파일을 소유한 사용자의 정보를 나타낸다. 파일의 소유자는 파일에 대한 권한과 접근 제어를 관리한다.
+                
+            9. 파일 권한(File Permissions):
+                파일에 대한 접근 권한을 나타낸다. 파일의 소유자, 그룹 및 기타 사용자에 대한 읽기, 쓰기, 실행 등의 권한을 설정한다.
+                
+            10. 기타 속성(Other Attributes):
+                파일에 대한 기타 속성들을 나타낼 수 있다. 이는 파일의 생성자, 파일에 대한 설명, 관련된 태그 등과 같은 정보를 포함할 수 있다.
+
+- 파일 연산을 위한 시스템 호출
+: 생성, 열기, 읽기, 쓰기, 닫기 ,삭제
+
+### 파일 시스템 이용 예제 코드
+<details>
+<summary>22.file.py 코드 펼쳐보기</summary>
+
+```python
+# 기본적인 파일 입출력 예제
+
+with open("number_one.txt", "w") as f:
+    f.write("one!")
+
+with open("number_two.txt", "w") as f:
+    f.write("two!")
+
+with open("number_three.txt", "w") as f:
+    f.write("three!")
+
+with open("number_four.txt", "w") as f:
+    f.write("four!")
+
+# 파일네임의 패턴을 이용해 한번에 접근하기
+import glob
+
+for filename in glob.glob("*.txt", recursive=True):
+    print(filename)
+
+import fileinput # 파일의 내용들을 읽어올 수 있음
+
+with fileinput.input(glob.glob('*.txt')) as fi:
+    for line in fi:
+        print(line)
+
+# 파일 이름이 매치되는 것을 찾아줌
+import fnmatch
+import os
+
+for filename in os.listdir('.'):
+    if fnmatch.fnmatch(filename, '??????_*.txt'):
+        print(filename)
+```
+
+</details>
+
+<details>
+<summary>23.file2.py 코드 펼쳐보기</summary>
+
+```python
+# 파일 관련 예외는 운영체제와 관련이 있음을 확인해보자
+
+try:
+    f = open("none.txt", "r")
+    print(f.read())
+    f.close()
+
+except FileNotFoundError as e:
+    print(e)
+    print(issubclass(FileNotFoundError, OSError))
+```
+</details>
+
+<details>
+<summary>24.file3.js 코드 펼쳐보기</summary>
+
+```javascript
+const fs = require("fs")
+
+fs.readFile('number_four.txt', 'utf-8', (err, data) => {
+    if(err){
+        console.log('파일을 읽는 도중 에러가 발생하였습니다', err)
+        return;
+    }
+    console.log('파일내용 : ', data)
+})
+
+// 덮어쓰기
+let content = "4$$$4$$$44$$$4$"
+fs.writeFile('number_four.txt', content, (err) => {
+    if(err) {
+        console.log('파일을 쓰는 도중 에러가 발생하였습니다', err)
+        return;
+    }
+    console.log('파일을 수정했습니다.')
+})
+
+// 이어쓰기
+content = '새로운 내용 추가'
+fs.appendFile('number_four.txt', content, (err) => {
+    if(err) {
+        console.log('파일을 쓰는 도중 에러가 발생하였습니다', err)
+        return;
+    }
+    console.log('파일에 이어쓰기를 완료했습니다.')
+})
+```
+
+</details>
+<br>
+<br>
+
+## 디렉터리
+![디렉터리](/이미지/directory.png)
+
+운영체제는 파일을 정돈할 수 있도록 디렉터리를 지원한다. 디렉터리는 한 개 이상의 파일을 가질 수 있고, 한 개 이상의 디렉터리도 가질 수 있다. 디렉터리와 디렉터리는 부모-자식 관계를 형성할 수 있다.
+
+디렉터리와 파일은 트리구조를 가진다.
+
+![절대경로표시](/이미지/스크린샷%202024-03-20%20오전%2011.48.45.png)
+![상대경로표시](/이미지/스크린샷%202024-03-20%20오전%2011.51.15.png)
+
+디렉터리와 파일은 모두 절대경로와 상대경로를 가진다.
+
+디렉터리도 파일의 일종이다.
+
+일반적인 파일에는 데이터가 저장되어 있지만, 디렉터리에는 파일 정보가 저장되어 있다.
+
+디렉터리에 저장된 파일 정보는 테이블 형태로 관리된다.
+
+테이블의 행 하나하나를 가리켜 디렉터리 엔트리라고 부른다.
+
+### 디렉터리 & 파일 실습 예제 코드
+
+<details>
+<summary>25.directory.py 코드 펼쳐보기</summary>
+
+```python
+import os
+
+pwd = "/Users/daeyong/Documents"
+
+# 디렉터리 내부 리스트 업
+filenames = os.listdir(pwd)
+print(filenames)
+
+# 디렉터리인지 아닌지 여부
+print(os.path.isdir(pwd+'/파일이름이나 폴더이름'))
+
+# 파일인지 여부
+print(os.path.isfile(pwd+'/파일이름이나 폴더이름'))
+
+# 파일이름과 확장자분리
+filepath = pwd + '/' + filenames[0]
+print(filepath)
+name, ext = os.path.splitext(filepath) # 파일이름과 확장자를 튜플로반환
+print(name, ext)
+```
+
+</details>
+
+<details>
+<summary>26.directory2.py 코드 펼쳐보기</summary>
+
+```python
+# 경로와 확장자 이용해 파일찾고, 내용읽기
+import os
+
+def search_file(dirname, extension):
+    filenames = os.listdir(dirname)
+    for filename in filenames:
+        filepath = os.path.join(dirname, filename)
+        if os.path.isdir(filepath):
+            search_file(filepath, extension)
+        elif os.path.isfile(filepath):
+            name, ext = os.path.splitext(filepath)
+            if ext == extension:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    print(f.read())
+```
+
+</details>
+
+<details>
+<summary>27.file_dir.py 코드 펼쳐보기</summary>
+
+```python
+# 파일 복사 또는 이동
+import os
+import shutil
+
+pwd = '폴더나 파일경로'
+extension = '.확장자명'
+keyword = '파일이름 중 일부'
+new_dir = 'pwd 아래의 새로운 폴더'
+filenames = os.listdir(pwd)
+
+for filename in filenames:
+    if keyword in filename:
+        origin = os.path.join(pwd, filename)
+        print(origin)
+        shutil.copy(origin, os.path.join(pwd, 'copy' + extension)) # 복사
+        shutil.move(origin, os.path.join(pwd, new_dir)) # new_dir로 파일 이동
+```
+
+</details>
+
+<details>
+<summary>28.route_obj.py 코드 펼쳐보기</summary>
+
+```python
+# 파일 경로를 문자열이 아닌 객체로 다루기
+import os
+import pathlib
+
+for p in pathlib.Path.cwd().glob('*.txt'):
+    new_p = os.path.join(p.parent, p.name)
+    print(new_p)
+```
+
+</details>
+<br>
+<br>
+
+## 파일과 메모리
+![할당](/이미지/스크린샷%202024-03-20%20오후%204.41.36.png)
+
+- 파일의 메모리 할당 방법
+    ![할당방법](/이미지/스크린샷%202024-03-20%20오후%204.43.15.png)
+    하나의 파일은 여러개의 블록으로 이루어져있다. 블록을 메모리에 할당할 때는 연속 방식 또는 불연속 방식을 사용할 수 있다.
+
+    1. 연속 할당(Contiguous Allocation)
+
+        연속 할당은 파일이 디스크에 연속적인 공간에 저장되는 방식이다. 즉, 파일의 모든 데이터 블록이 디스크 내에서 연속적인 물리적 공간에 할당된다. 이러한 방식은 각 파일의 시작과 끝 위치를 가리키는 포인터만으로 파일을 식별할 수 있다. 연속 할당 방식은 간단하고 빠르지만, 파일을 생성하거나 수정할 때 파일이 사용 가능한 연속적인 공간을 찾아야 하며, 파일 크기가 고정되어 있거나 변경되지 않는 경우에 적합하다. 그러나 파일을 삭제하거나 수정할 때 발생하는 파일 단편화 문제가 있다.
+
+
+    2. 불연속 할당(Non-contiguous Allocation)
+
+        불연속 할당은 파일의 데이터 블록이 디스크에 연속적인 공간에 할당되지 않는 방식이다. 대신 파일의 데이터 블록이 디스크에 분산하여 할당될 수 있다. 이를 위해 파일의 각 데이터 블록은 다음 데이터 블록의 위치를 가리키는 포인터를 포함하고 있다. 불연속 할당 방식은 파일 단편화 문제를 해결할 수 있으며, 파일의 크기가 동적으로 변하는 경우에 유연하게 대응할 수 있다. 그러나 액세스 시간이 늘어나고 추가적인 포인터 계산이 필요할 수 있다.
+
+        - 불연속 할당의 방법
+            
+            1. 연결 할당(Linked Allocation)
+
+                연결 할당은 링크드 리스트로 구현이 가능하다. 각 파일의 데이터 블록이 연결된 리스트 형태로 디스크에 저장되는 방식이다. 각 데이터 블록은 다음 데이터 블록의 위치를 가리키는 포인터를 가지고 있이다. 파일의 시작 데이터 블록 위치만 알고 있다면, 해당 파일의 모든 데이터 블록에 접근할 수 있다. 이 방식은 파일의 데이터 블록이 디스크에 연속적인 공간에 저장되지 않고, 연결된 구조를 가지기 때문에 파일의 크기가 동적으로 변경될 수 있다. 그러나 이 방식은 많은 포인터 계산이 필요하므로 액세스 속도가 느릴 수 있다.
+            
+            2. 인덱스 할당(Indexed Allocation)
+
+                인덱스 할당은 파일의 데이터 블록들을 인덱스 블록이라는 중간 매개체에 기록하는 방식이다. 각 파일은 해당 파일의 모든 데이터 블록의 위치를 나타내는 인덱스 블록을 가지고 있다. 파일 디스크립터에는 해당 파일의 첫 번째 데이터 블록을 가리키는 포인터가 저장되어 있다. 이 방식은 불연속 할당 방식이지만, 인덱스 블록을 통해 파일의 모든 데이터 블록에 효율적으로 접근할 수 있다. 인덱스 할당 방식은 파일의 크기가 동적으로 변해도 추가적인 포인터 계산이 필요하지 않으므로 액세스 속도가 더 빠를 수 있다.
+
+### 일일과제
+
+<details>
+<summary>자료구조 - 연결리스트 펼쳐보기</summary>
+연결 리스트(Linked List)는 데이터 요소들을 순서대로 저장하는 자료구조이다. 
+
+각 요소는 다음 요소를 가리키는 포인터를 가지고 있어서, 데이터 요소들이 메모리에 연속적으로 저장되지 않는다. 
+이것이 배열과의 주요 차이점 중 하나이다. 
+
+연결 리스트는 동적으로 크기가 조절될 수 있으며, 삽입과 삭제 연산이 배열보다 효율적이다. 다만 특정 인덱스에 직접 접근하는 것은 불가능하며, 검색 속도가 배열보다 느리다.
+
+- C언어로 구현하는 단일 연결 리스트
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+// 연결 리스트의 노드를 나타내는 구조체
+struct Node {
+    int data;           // 데이터를 저장하는 멤버
+    struct Node* next;  // 다음 노드를 가리키는 포인터
+};
+
+// 연결 리스트의 시작 노드를 나타내는 포인터
+struct Node* head = NULL;
+
+// 연결 리스트에 새로운 요소를 추가하는 함수
+void append(int newData) {
+    // 새로운 노드를 동적으로 할당하여 생성
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    // 새로운 노드에 데이터를 설정하고 다음 노드를 NULL로 초기화
+    newNode->data = newData;
+    newNode->next = NULL;
+
+    // 연결 리스트가 비어있는 경우 새로운 노드를 첫 번째 노드로 설정
+    if (head == NULL) {
+        head = newNode;
+        return;
+    }
+
+    // 연결 리스트의 끝을 찾아서 새로운 노드를 추가
+    struct Node* temp = head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newNode;
+}
+
+// 연결 리스트의 모든 요소를 출력하는 함수
+void display() {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    // 연결 리스트에 요소 추가
+    append(1);
+    append(2);
+    append(3);
+    append(4);
+    
+    // 연결 리스트의 모든 요소 출력
+    printf("Linked List: ");
+    display();
+
+    return 0;
+}
+
+```
+
+</details>
+
+## 데이터 표현
+
+컴퓨터는 모든 정보를 0과 1로 표현한다. 컴퓨터의 저장장치가 비트(bit)단위로 구성되어있기 때문이다.
+
+비트란 on, off 상태만 표현할 수 있는 정보 단위이다.
+
+on 상태의 비트를 1이라 표현하고, off 상태의 비트를 0이라 표현한다.
+
+0과 1만으로 데이터를 표현하기 때문에, 컴퓨터는 어떤 데이터이든 이진 데이터의 형태로 보유한다.
+
+- 정수의 표현
+    1. 부호가 있는 정수(Signed Integers)
+        ![정수표현](/이미지/스크린샷%202024-03-20%20오후%205.57.15.png)
+        
+        - 부호 있는 정수는 양수와 음수를 모두 표현할 수 있다. 대표적으로 2의 보수 표현 방식이 사용된다. 이 방식은 정수를 표현하는 가장 일반적인 방법 중 하나이다.
+        - 2의 보수 표현 방식에서는 가장 왼쪽 비트가 부호 비트로 사용되며, 0은 양수를 나타내고 1은 음수를 나타낸다. 나머지 비트는 해당 숫자의 절대값을 나타낸다. 음수의 경우 2의 보수를 취해주어야 한다.
+        - 예를 들어, 8비트로 부호 있는 정수를 표현할 때, -3은 0000 0011으로 표현됩니다.
+
+    2. 부호 없는 정수(Unsigned Integers)
+        - 부호 없는 정수는 0과 양수만을 표현할 수 있다. 모든 비트가 숫자의 값을 나타낸다. 따라서 부호 비트가 없다.
+        - 예를 들어, 8비트로 부호 없는 정수를 표현할 때, 3은 0000 0011으로 표현됩니다.
+
+- 2의 보수 표현 방식
+    1. 비트 수 설정
+        - 먼저 정수를 표현할 비트 수를 설정한다. 예를 들어, 8비트로 정수를 표현한다면 8개의 비트를 사용한다.
+    
+    2. 부호 비트 설정
+        - 가장 왼쪽 비트를 부호 비트로 사용한다. 0은 양수를 나타내고, 1은 음수를 나타낸다.
+    
+    3. 양수 표현
+        - 양수는 이진수로 직접 표현된다. 가장 왼쪽 비트는 0이므로 부호를 나타내는 비트가 0이다.
+    
+    4. 음수 표현
+        - 음수는 양수의 보수에 1을 더한 값으로 표현된다.
+        - 먼저 해당 음수의 절대값을 이진수로 표현한다. 예를 들어, -3을 표현하기 위해 절대값인 3을 이진수로 표현하면 0000 0011이다.
+        - 이진수의 각 비트를 뒤집은 후(1의 보수), 1을 더한다. 즉, 0000 0011을 뒤집은 후 1111 1100이 되고, 여기에 1을 더하면 1111 1101이 된다.
+        - 이렇게 얻은 결과를 해당 음수의 이진 표현으로 사용한다. 가장 왼쪽 비트는 1이므로 음수를 나타내는 것을 의미한다.
+
+- 실수의 표현 방법(부동 소수점 방식)
+    ![부동소수점](/이미지/스크린샷%202024-03-20%20오후%207.07.59.png)
+
+    실수를 컴퓨터에서 표현하는 방법은 부동 소수점(Floating Point) 방식이 가장 널리 사용된다. 부동 소수점 방식은 실수를 가수(Mantissa 또는 Significand)와 지수(Exponent)로 표현하여 근사적으로 표현하는 방법이다.
+
+    1. 부동 소수점 표현 방식의 구성 요소:
+        - 부호 비트(Sign Bit): 부호를 나타내는 비트로서, 0은 양수를 나타내고, 1은 음수를 나타낸다.
+        - 가수(Mantissa 또는 Significand): 실수의 유효 자릿수를 나타내는 부분으로, 소수점 이하의 값과 정수 부분의 값이 합쳐져 있다.
+        - 지수(Exponent): 실수의 크기를 나타내는 부분으로, 가수의 위치를 조절하여 실제 값을 표현한다.
+    
+    2. 부동 소수점 표현 방식의 동작 과정:
+        - 실수는 가수와 지수로 분해된다.
+        - 가수는 소수점 이하의 유효 자릿수를 포함하며, 이 값은 고정된 비트 수로 표현된다.
+        - 지수는 가수의 위치를 조절하여 소수점의 위치를 옮기는 역할을 한다. 이 값도 고정된 비트 수로 표현된다.
+        - 부동 소수점 숫자는 다음과 같이 나타낼 수 있다: (-1)^S * M * B^E
+            - S: 부호 비트(0 또는 1)
+            - M: 가수
+            - B: 밑(base, 보통 2 또는 10)
+            - E: 지수
+
+- 문자의 표현 방법
+    1. 문자셋 (Character Set):
+    문자셋은 컴퓨터에서 사용되는 문자들의 집합을 정의한다. 예를 들어, ASCII(American Standard Code for Information Interchange), Unicode, ISO 8859 등이 있다. 각 문자셋은 특정한 문자들을 표현하기 위해 고유한 코드 포인트(문자 코드)를 정의한다. ASCII는 주로 영문 알파벳과 일부 특수 문자를 포함하며, Unicode는 전 세계의 모든 문자를 포함하는 국제 표준이다.
+
+    2. 문자 인코딩 (Character Encoding):
+    문자 인코딩은 문자셋의 문자 코드를 컴퓨터에서 사용되는 이진수로 변환하는 방법을 의미한다. 이진수로 변환된 문자 코드는 컴퓨터에서 저장하고 전송하기 위해 사용된다. 대표적인 문자 인코딩 방식으로는 UTF-8, UTF-16, ISO-8859-1(Latin-1) 등이 있다. 각 문자 인코딩 방식은 문자셋에 따라 다양한 방식으로 문자 코드를 이진수로 변환한다.
+
+    3. 문자 디코딩 (Character Decoding):
+    문자 디코딩은 이진수로 표현된 문자 코드를 다시 문자셋의 문자로 변환하는 과정을 의미한다. 이 과정은 문자 인코딩과 반대로 작동한다. 컴퓨터가 저장하거나 전송된 이진 데이터를 사람이 읽을 수 있는 문자로 변환할 때 사용된다. 문자 디코딩은 문자 인코딩 방식에 따라 다르며, 올바른 인코딩 방식을 사용해야 올바르게 디코딩할 수 있다.
+
+## 쓰레드 풀(Thread Pool)
+![스레드풀](/이미지/스크린샷%202024-03-21%20오전%209.58.15.png)
+
+스레드의 생성과 소멸은 시스템에 많은 부담을 준다.
+
+스레드 풀(Thread Pool)은 스레드를 효율적으로 관리하기 위한 기법 중 하나이다. 일반적으로 스레드 풀은 여러 개의 사전 생성된 스레드를 유지하고, 작업을 처리할 때 이러한 스레드들을 재사용하여 작업을 처리한다.
+
+특정 개수의 스레드가 여러개의 일을 차례대로 수행하도록 하는 기법이다.
+
+- 구성 요소
+    1. 스레드 풀 관리자(Thread Pool Manager): 스레드 풀을 생성하고 관리하는 주체이다. 스레드 풀의 크기를 조정하고, 스레드의 생성 및 제거를 담당한다.
+
+    2. 작업 큐(Task Queue): 스레드 풀에 추가된 작업을 저장하는 큐이다. 작업 큐에 있는 작업들은 스레드 풀의 스레드들에 의해 순차적으로 처리된다.
+
+    3. 작업 처리자(Task Processor): 스레드 풀의 각 스레드가 작업 큐에서 작업을 가져와 처리하는 부분이다.
+
+    4. 스레드 풀의 스레드(Thread Pool Threads): 스레드 풀에 포함된 사전 생성된 스레드들로, 작업을 처리하는 데 사용된다.
+
+- 이점
+    1. 자원 효율성: 스레드 생성과 소멸에는 오버헤드가 따르므로, 스레드를 필요할 때마다 생성하는 것보다 사전에 생성된 스레드를 재사용하는 것이 효율적이다.
+
+    2. 응답성 향상: 스레드 풀을 사용하면 작업을 처리하기 위해 스레드가 항상 사용 가능하므로, 작업을 더 빠르게 처리할 수 있다.
+
+    3. 작업 제어: 스레드 풀은 일정한 크기로 스레드의 개수를 제한할 수 있으며, 작업 큐를 사용하여 작업을 조절할 수 있다. 이를 통해 시스템 리소스를 효율적으로 관리할 수 있다.
+
+### 스레드풀 예제 코드
+
+<details>
+<summary>29.thread_pool.py 코드 펼쳐보기</summary>
+
+```python
+import concurrent.futures
+import time
+"""
+스레드 풀의 작동원리를 코드 실행을 통해 이해해보자.
+
+0, 1, 2, 3, 4 의 스레드에 순차적으로 작업을 주어지게 하지만
+
+끝나는 작업의 순서는 다름을 볼 수 있다. -> 먼저 끝나는 스레드가 또 다른 작업을 가져갈 수 있다.
+"""
+def task(name):
+    time.sleep(0.5)
+    return f"{name}의 작업 완료"
+
+if __name__ == '__main__':
+    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as executor:
+        future_name = {executor.submit(task, f"Task-{i}") : f"Task-{i}" for i in range(5)}
+
+        # 작업 완료된 순서대로 결과 출력
+
+        for future in concurrent.futures.as_completed(future_name):
+            name = future_name[future]
+            try:
+                result = future.result()
+                print(f"{name}의 결과 : {result}")
+
+            except Exception as e:
+                print(f"{name}에서 예외 발생 : {e}")
+```
+</details>
+
+### 라운드 로빈 모델 구현
+
+<details>
+<summary>30.round_robin.py 코드 펼쳐보기</summary>
+
+```python
+def round_robin(process, burst_time, time_quantum):
+    n = len(process)  # 프로세스의 수
+    remaining_time = list(burst_time)  # 각 프로세스의 남은 실행 시간
+    turnaround_time = [0] * n  # 각 프로세스의 완료 시간
+    waiting_time = [0] * n  # 각 프로세스의 대기 시간
+
+    time = 0  # 현재 시간
+    queue = []  # 라운드 로빈 스케줄링에 사용되는 대기 큐
+
+    while True:
+        all_completed = True  # 모든 프로세스가 종료되었는지 확인하는 플래그
+
+        # 각 프로세스에 대해 순회하며 실행
+        for i in range(n):
+            if remaining_time[i] > 0:  # 아직 실행할 남은 시간이 있는 경우
+                all_completed = False  # 모든 프로세스가 종료되지 않았음을 표시
+                
+                if remaining_time[i] > time_quantum:  # 시간 할당량보다 남은 시간이 더 많은 경우
+                    time += time_quantum  # 현재 시간을 시간 할당량만큼 증가
+                    remaining_time[i] -= time_quantum  # 프로세스의 남은 실행 시간에서 시간 할당량을 감소
+                    queue.append(i)  # 대기 큐에 프로세스 추가
+                else:
+                    time += remaining_time[i]  # 현재 시간을 남은 실행 시간만큼 증가
+                    turnaround_time[i] = time  # 프로세스의 종료 시간 기록
+                    remaining_time[i] = 0  # 프로세스의 남은 실행 시간을 0으로 설정 (종료)
+                    waiting_time[i] = turnaround_time[i] - burst_time[i]  # 대기 시간 계산
+
+        if all_completed:  # 모든 프로세스가 종료되었을 경우 반복문 종료
+            break
+
+    # 결과 출력
+    print("Process\tTurnaround Time\tWaiting Time")
+    for i in range(n):
+        print(f"P{i+1}\t\t{turnaround_time[i]}\t\t{waiting_time[i]}")
+
+# 함수 호출해서 기능 확인하기
+processes = [1, 2, 3]
+burst_time = [10, 5, 8]
+time_slice = 2
+
+round_robin(processes, burst_time, time_slice)
+```
+
+</details>
